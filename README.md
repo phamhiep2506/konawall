@@ -38,27 +38,27 @@ options:
 ### Available Modes
 - `--random` - Random set wallpaper
 - `--setwall` - Set wallpaper by id
+- `--list` - Show list image by day, week, month
 - `--unsafe` - Unsafe image source
 
 ### `--random` mode
 Example:
-- Random set wallpaper by day 
+
+- Random set wallpaper `-d`, `-w`, `-m` 
 ```bash
 python konawall --random -d
 ```
-- Random set wallpaper by week 
-```bash
-python konawall --random -w
-```
-- Random set wallpaper by month 
-```bash
-python konawall --random -m
-```
 
 ### `--setwall` mode
-- Set wallpaper by id
+- Set wallpaper `-id`
 ```bash
 python konawall --setwall -id 350743
+```
+
+### `--list` mode
+- Show list image `-d`, `-w`, `-m`
+```bash
+python konawall --list -d
 ```
 
 ### `--unsafe` mode
