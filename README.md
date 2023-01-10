@@ -1,11 +1,11 @@
-# Konachan.net - Wallpaper
+# konawall - Set wallpaper using feh
+
+## Screenshot
+![konawall](https://user-images.githubusercontent.com/64464369/211559815-6a511db6-3e82-4683-913c-e6bf202bc9e6.png)
+
+## Image source
 - [konachan.net](https://konachan.net) - (Safe)
-- [konachan.com](https://konachan.com) - (Explicit)
-
-![preview.gif](./preview.gif)
-
-## Video demo
-[![Video demo](https://img.youtube.com/vi/LofcX9y7lb0/0.jpg)](https://www.youtube.com/watch?v=LofcX9y7lb0)
+- [konachan.com](https://konachan.com) - (Unsafe)
 
 ## Installation
 ```bash
@@ -14,19 +14,55 @@ cd konachan
 pip install -r requirements.txt
 ```
 
-## Run
+## Usage
+
+`Current Python version 3.10.9`
+
 ```bash
-python konawall
+usage: konawall [-h] [--random] [-d] [-w] [-m] [--setwall] [-id <INT>] [--list] [--unsafe]
+
+Program set wallpaper using feh.
+
+options:
+  -h, --help  show this help message and exit
+  --random    Random set wallpaper by day, week, month
+  -d          Random popular images by day
+  -w          Random popular images by week
+  -m          Random popular images by month
+  --setwall   Set wallpaper by id
+  -id <INT>   ID image is number "350743"
+  --list      Show list image by day, week, month
+  --unsafe    Unsafe image source
 ```
 
-## Configure image source url
-- Edit file [konachan](./konawall)
-- Safe source images (Safe)
-```python
-KONACHAN_URL = "https://konachan.net"
+### Available Modes
+- `--random` - Random set wallpaper
+- `--setwall` - Set wallpaper by id
+- `--unsafe` - Unsafe image source
+
+### `--random` mode
+Example:
+- Random set wallpaper by day 
+```bash
+python konawall --random -d
+```
+- Random set wallpaper by week 
+```bash
+python konawall --random -w
+```
+- Random set wallpaper by month 
+```bash
+python konawall --random -m
 ```
 
-- Explicit source image (Unsafe)
-```python
-KONACHAN_URL = "https://konachan.com"
+### `--setwall` mode
+- Set wallpaper by id
+```bash
+python konawall --setwall -id 350743
+```
+
+### `--unsafe` mode
+- Unsafe image source. Add the `--unsafe` flag to the end of the command line
+```bash
+python konawall --random -d --unsafe
 ```

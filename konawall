@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # Program set wallpaper using feh
 # Current Python version when running the program: Python version 3.10.9
@@ -14,7 +15,8 @@ from pathlib import Path
 import urllib.request
 import platform
 import subprocess
-from datetime import date
+import datetime
+import argparse
 
 KONACHAN_URL = "https://konachan.net"
 COLOR_DONE = '\033[92m'
@@ -22,12 +24,22 @@ COLOR_ERROR = '\033[91m'
 COLOR_WARNING = '\033[93m'
 COLOR_END = '\033[0m'
 
-def getID(url):
+PREV_DAY = ((datetime.datetime.today() - datetime.timedelta(days=1)).strftime('%d-%m-%Y')).split("-")
+START_WEEK = (datetime.datetime.today() - datetime.timedelta(days=datetime.datetime.today().weekday())).strftime('%d-%m-%Y').split("-")
+
+# create path save image $HOME/.konachan
+home_dir = Path.home()
+konachan_dir = ".konachan" 
+path_konachan = os.path.join(home_dir, konachan_dir) 
+if not os.path.exists(path_konachan):
+    os.mkdir(path_konachan) 
+
+def getRandomId(url):
     try:
         html_doc = requests.get(url).text
     except:
         print(f"{COLOR_ERROR}[Error] Internet connection failed.{COLOR_END}")
-        sys.exit(0)
+        sys.exit()
 
     idArray = []
     data_ul = BeautifulSoup(html_doc, 'html.parser').find('ul', id="post-list-posts")
@@ -38,40 +50,123 @@ def getID(url):
  
     return random.choice(idArray)
 
-def getIMG():
-    prev_day = date.today().day - 1
-    month = date.today().month
-    year = date.today().year
-
-    id = getID(f"{KONACHAN_URL}/post/popular_by_day?day={prev_day}&month={month}&year={year}")
+def getRandomImgPopularByDay():
+    id = getRandomId(f"{KONACHAN_URL}/post/popular_by_day?day={PREV_DAY[0]}&month={PREV_DAY[1]}&year={PREV_DAY[2]}")
     html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
     url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+    print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
+    print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
     return url_img
+
+def getRandomImgPopularByWeek():
+    id = getRandomId(f"{KONACHAN_URL}/post/popular_by_week?day={START_WEEK[0]}&month={START_WEEK[1]}&year={START_WEEK[2]}")
+    html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
+    url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+    print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
+    print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
+    return url_img
+
+def getRandomImgPopularByMonth():
+    id = getRandomId(f"{KONACHAN_URL}/post/popular_by_month?month={PREV_DAY[1]}&year={PREV_DAY[2]}")
+    html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
+    url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+    print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
+    print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
+    return url_img
+
+def getUrlImgById(id):
+    html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
+    try:
+        url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+        print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
+        print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
+        return url_img
+    except:
+        print(f"{COLOR_ERROR}[Error] Get url failed.{COLOR_END}")
 
 def download_progress(block_num, block_size, total_size):
     print(round(block_num * block_size / total_size *100,2), end="\r")
 
-if __name__ == "__main__":
-    url_img = getIMG()
-    home_dir = Path.home()
-    konachan_dir = ".konachan" 
-    path_konachan = os.path.join(home_dir, konachan_dir) 
-
-    if not os.path.exists(path_konachan):
-        os.mkdir(path_konachan) 
-
+def download_image(url_img):
     try:
         print(f"{COLOR_WARNING}[Download] Download image...{COLOR_END}")
         urllib.request.urlretrieve(url_img, f"{path_konachan}/konachan.jpg", download_progress)
     except:
         print(f"{COLOR_ERROR}[Error] Download image failed.{COLOR_END}")
 
+def showList(url):
+    try:
+        html_doc = requests.get(url).text
+    except:
+        print(f"{COLOR_ERROR}[Error] Internet connection failed.{COLOR_END}")
+        sys.exit()
+
+    data_ul = BeautifulSoup(html_doc, 'html.parser').find('ul', id="post-list-posts")
+    data_li = BeautifulSoup(data_ul.prettify(), 'html.parser').find_all('li')
+
+    for x in data_li:
+        id = x.get('id').replace('p', '')
+        html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
+        url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+        print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
+        print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
+        print("---")
+
+def setWallpaper():
     if platform.system() == "Linux":
         try:
             subprocess.call(["feh", "--bg-max", f"{path_konachan}/konachan.jpg"])
             print(f"{COLOR_DONE}[Done] Set wallpaper successfully.{COLOR_END}")
         except:
             print(f"{COLOR_ERROR}[Error] Set wallpaper failed.{COLOR_END}")
-            sys.exit(0)
+            sys.exit()
     else:
         print(f"{COLOR_WARNING}[Warning] The program does not support the OS.{COLOR_END}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Program set wallpaper using feh.')
+    parser.add_argument('--random', action='store_true', help='Random set wallpaper by day, week, month')
+    parser.add_argument('-d',action='store_true', help='Random popular images by day')
+    parser.add_argument('-w',action='store_true', help='Random popular images by week')
+    parser.add_argument('-m', action='store_true', help='Random popular images by month')
+    parser.add_argument('--setwall', action='store_true', help='Set wallpaper by id')
+    parser.add_argument('-id', metavar="<INT>", type=int, help='ID image is number "350743"')
+    parser.add_argument('--list', action='store_true', help='Show list image by day, week, month')
+    parser.add_argument('--unsafe', action='store_true', help='Unsafe image source')
+    args = parser.parse_args()
+
+    if(args.random):
+        if(args.unsafe):
+            KONACHAN_URL = "https://konachan.com"
+        if(args.d):
+            download_image(getRandomImgPopularByDay())
+            setWallpaper()
+        elif(args.w):
+            download_image(getRandomImgPopularByWeek())
+            setWallpaper()
+        elif(args.m):
+            download_image(getRandomImgPopularByMonth())
+            setWallpaper()
+        else:
+            print(f"{COLOR_ERROR}[Error] Arguments missing [-d] or [-w] or [-m].{COLOR_END}")
+
+    if(args.list):
+        if(args.unsafe):
+            KONACHAN_URL = "https://konachan.com"
+        if(args.d):
+            showList(f"{KONACHAN_URL}/post/popular_by_day")
+        elif(args.w):
+            showList(f"{KONACHAN_URL}/post/popular_by_week")
+        elif(args.m):
+            showList(f"{KONACHAN_URL}/post/popular_by_month")
+        else:
+            print(f"{COLOR_ERROR}[Error] Arguments missing [-d] or [-w] or [-m].{COLOR_END}")
+
+    if(args.setwall):
+        if(args.unsafe):
+            KONACHAN_URL = "https://konachan.com"
+        if(args.id):
+            download_image(getUrlImgById(args.id))
+            setWallpaper()
+        else:
+            print(f"{COLOR_ERROR}[Error] Arguments missing [-id].{COLOR_END}")
