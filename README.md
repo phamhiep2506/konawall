@@ -4,6 +4,8 @@
 
 ## Installation
 ```bash
+git clone https://github.com/phamhiep2506/konawall
+cd konachan
 pip install -r requirements.txt
 ```
 
