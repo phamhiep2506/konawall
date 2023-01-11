@@ -53,7 +53,7 @@ def getRandomId(url):
 def getRandomImgPopularByDay():
     id = getRandomId(f"{KONACHAN_URL}/post/popular_by_day?day={PREV_DAY[0]}&month={PREV_DAY[1]}&year={PREV_DAY[2]}")
     html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
-    url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+    url_img = getUrlImgByHtml(html_doc)
     print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
     print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
     return url_img
@@ -61,7 +61,7 @@ def getRandomImgPopularByDay():
 def getRandomImgPopularByWeek():
     id = getRandomId(f"{KONACHAN_URL}/post/popular_by_week?day={START_WEEK[0]}&month={START_WEEK[1]}&year={START_WEEK[2]}")
     html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
-    url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+    url_img = getUrlImgByHtml(html_doc)
     print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
     print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
     return url_img
@@ -69,15 +69,23 @@ def getRandomImgPopularByWeek():
 def getRandomImgPopularByMonth():
     id = getRandomId(f"{KONACHAN_URL}/post/popular_by_month?month={PREV_DAY[1]}&year={PREV_DAY[2]}")
     html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
-    url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+    url_img = getUrlImgByHtml(html_doc)
     print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
     print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
+    return url_img
+
+def getUrlImgByHtml(html_doc):
+    url_img = ""
+    try:
+        url_img = BeautifulSoup(html_doc, 'html.parser').find(id="png").get('href')
+    except:
+        url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
     return url_img
 
 def getUrlImgById(id):
     html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
     try:
-        url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+        url_img = getUrlImgByHtml(html_doc)
         print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
         print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
         return url_img
@@ -90,32 +98,14 @@ def download_progress(block_num, block_size, total_size):
 def download_image(url_img):
     try:
         print(f"{COLOR_WARNING}[Download] Download image...{COLOR_END}")
-        urllib.request.urlretrieve(url_img, f"{path_konachan}/konachan.jpg", download_progress)
+        urllib.request.urlretrieve(url_img, f"{path_konachan}/konachan.png", download_progress)
     except:
         print(f"{COLOR_ERROR}[Error] Download image failed.{COLOR_END}")
-
-def showList(url):
-    try:
-        html_doc = requests.get(url).text
-    except:
-        print(f"{COLOR_ERROR}[Error] Internet connection failed.{COLOR_END}")
-        sys.exit()
-
-    data_ul = BeautifulSoup(html_doc, 'html.parser').find('ul', id="post-list-posts")
-    data_li = BeautifulSoup(data_ul.prettify(), 'html.parser').find_all('li')
-
-    for x in data_li:
-        id = x.get('id').replace('p', '')
-        html_doc = requests.get(f"{KONACHAN_URL}/post/show/{id}").text
-        url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
-        print(f"{COLOR_DONE}ID:{COLOR_END} {id}")
-        print(f"{COLOR_DONE}URL IMAGE:{COLOR_END} {url_img}")
-        print("---")
 
 def setWallpaper():
     if platform.system() == "Linux":
         try:
-            subprocess.call(["feh", "--bg-max", f"{path_konachan}/konachan.jpg"])
+            subprocess.call(["feh", "--bg-max", f"{path_konachan}/konachan.png"])
             print(f"{COLOR_DONE}[Done] Set wallpaper successfully.{COLOR_END}")
         except:
             print(f"{COLOR_ERROR}[Error] Set wallpaper failed.{COLOR_END}")
@@ -131,7 +121,6 @@ if __name__ == "__main__":
     parser.add_argument('-m', action='store_true', help='Random popular images by month')
     parser.add_argument('--setwall', action='store_true', help='Set wallpaper by id')
     parser.add_argument('-id', metavar="<INT>", type=int, help='ID image is number "350743"')
-    parser.add_argument('--list', action='store_true', help='Show list image by day, week, month')
     parser.add_argument('--unsafe', action='store_true', help='Unsafe image source')
     args = parser.parse_args()
 
@@ -147,18 +136,6 @@ if __name__ == "__main__":
         elif(args.m):
             download_image(getRandomImgPopularByMonth())
             setWallpaper()
-        else:
-            print(f"{COLOR_ERROR}[Error] Arguments missing [-d] or [-w] or [-m].{COLOR_END}")
-
-    if(args.list):
-        if(args.unsafe):
-            KONACHAN_URL = "https://konachan.com"
-        if(args.d):
-            showList(f"{KONACHAN_URL}/post/popular_by_day")
-        elif(args.w):
-            showList(f"{KONACHAN_URL}/post/popular_by_week")
-        elif(args.m):
-            showList(f"{KONACHAN_URL}/post/popular_by_month")
         else:
             print(f"{COLOR_ERROR}[Error] Arguments missing [-d] or [-w] or [-m].{COLOR_END}")
 

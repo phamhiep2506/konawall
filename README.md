@@ -31,14 +31,12 @@ options:
   -m          Random popular images by month
   --setwall   Set wallpaper by id
   -id <INT>   ID image is number "350743"
-  --list      Show list image by day, week, month
   --unsafe    Unsafe image source
 ```
 
 ### Available Modes
 - `--random` - Random set wallpaper
 - `--setwall` - Set wallpaper by id
-- `--list` - Show list image by day, week, month
 - `--unsafe` - Unsafe image source
 
 ### `--random` mode
@@ -53,12 +51,6 @@ python konawall --random -d
 - Set wallpaper `-id`
 ```bash
 python konawall --setwall -id 350743
-```
-
-### `--list` mode
-- Show list image `-d`, `-w`, `-m`
-```bash
-python konawall --list -d
 ```
 
 ### `--unsafe` mode
