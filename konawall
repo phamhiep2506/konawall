@@ -75,11 +75,7 @@ def getRandomImgPopularByMonth():
     return url_img
 
 def getUrlImgByHtml(html_doc):
-    url_img = ""
-    try:
-        url_img = BeautifulSoup(html_doc, 'html.parser').find(id="png").get('href')
-    except:
-        url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
+    url_img = BeautifulSoup(html_doc, 'html.parser').find(id="highres").get('href')
     return url_img
 
 def getUrlImgById(id):
@@ -98,14 +94,14 @@ def download_progress(block_num, block_size, total_size):
 def download_image(url_img):
     try:
         print(f"{COLOR_WARNING}[Download] Download image...{COLOR_END}")
-        urllib.request.urlretrieve(url_img, f"{path_konachan}/konachan.png", download_progress)
+        urllib.request.urlretrieve(url_img, f"{path_konachan}/konachan.jpg", download_progress)
     except:
         print(f"{COLOR_ERROR}[Error] Download image failed.{COLOR_END}")
 
 def setWallpaper():
     if platform.system() == "Linux":
         try:
-            subprocess.call(["feh", "--bg-max", f"{path_konachan}/konachan.png"])
+            subprocess.call(["feh", "--bg-max", f"{path_konachan}/konachan.jpg"])
             print(f"{COLOR_DONE}[Done] Set wallpaper successfully.{COLOR_END}")
         except:
             print(f"{COLOR_ERROR}[Error] Set wallpaper failed.{COLOR_END}")
