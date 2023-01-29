@@ -1,4 +1,4 @@
-# konawall - Set wallpaper using feh
+# konawall - Set wallpaper support Ubuntu 22.04, Windows 10
 
 ## Screenshot
 ![konawall](https://user-images.githubusercontent.com/64464369/211559815-6a511db6-3e82-4683-913c-e6bf202bc9e6.png)
