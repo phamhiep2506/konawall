@@ -111,6 +111,7 @@ def setWallpaper():
             elif distro.id() == "arch":
                 os.system(f"feh --bg-fill {path_konachan}/konachan.jpg")
                 print(f"{COLOR_DONE}[Done] Set wallpaper successfully.{COLOR_END}")
+                os.system(f"notify-send 'Wallpaper has changed.' '{path_konachan}/konachan.jpg'")
         except:
             print(f"{COLOR_ERROR}[Error] Set wallpaper failed.{COLOR_END}")
             sys.exit()
